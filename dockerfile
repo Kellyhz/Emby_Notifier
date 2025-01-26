@@ -11,7 +11,7 @@ RUN set -eux && \
         apk --no-cache update && apk -U --no-cache add git && \
         \
         mkdir -p /usr/src/myapp/ && \
-        git clone https://github.com/Ccccx159/Emby_Notifier.git /usr/src/myapp/ && \
+        git clone https://github.com/Kellyhz/Emby_Notifier.git /usr/src/myapp/ && \
         python3 -m pip install --no-cache-dir requests colorlog aiohttp -q; 
 
 ENTRYPOINT ["python3"]
