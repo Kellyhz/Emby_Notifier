@@ -3,6 +3,7 @@
 
 import requests, os, time
 import log
+import qmsg
 import wxapp
 import tgbot
 import traceback
@@ -126,6 +127,55 @@ class WechatAppSender(MessageSender):
         }
         wxapp.send_news_notice(card_details)
 
+class QmsgSender(MessageSender):
+    def __str__(self):
+        return "Qmsg"
+
+    def send_welcome(self, welcome: dict):
+        qmsg.send_text("hello!!!")
+
+    def send_test_msg(self, test_content: str):
+        qmsg.send_text(test_content)
+
+    def send_media_details(self, media: dict):
+        caption = (
+                f"@image={media.get('media_backdrop')}@/r"
+                + "#影视更新 #{server_name}\n"
+                + "\[{type_ch}]\n"
+                + "片名： *{title}* ({year})\n"
+                + "{episode}"
+                + "评分： {rating}\n\n"
+                + "上映日期： {rel}\n\n"
+                + "内容简介： {intro}\n\n"
+                + "相关链接： [TMDB]({tmdb_url})\n"
+        )
+
+        server_name = media["server_name"]
+        for ch in ["_", "*", "`", "["]:
+            server_name = server_name.replace(ch, f"\\{ch}")
+
+        caption = caption.format(
+            server_name=server_name,
+            type_ch="电影" if media["media_type"] == "Movie" else "剧集",
+            title=(
+                media["media_name"]
+                if media["media_type"] == "Movie"
+                else f"{media['media_name']} {media['tv_episode_name']}"
+            ),
+            # 部分电视剧没有 air_date 导致无法获取当前剧集的上映年份，增加年份字段判断保护
+            year=media["media_rel"][0:4] if media["media_rel"] else "Unknown",
+            episode=(
+                f"已更新至 第{media['tv_season']}季 第{media['tv_episode']}集\n"
+                if media["media_type"] == "Episode"
+                else ""
+            ),
+            rating=media["media_rating"],
+            rel=media["media_rel"],
+            intro=media["media_intro"],
+            tmdb_url=media["media_tmdburl"],
+        )
+
+        qmsg.send_text(caption)
 
 class SenderManager:
     def __init__(self):
@@ -143,6 +193,11 @@ class SenderManager:
         wechat_agent_id = os.getenv("WECHAT_AGENT_ID")
         if wechat_corp_id and wechat_corp_secret and wechat_agent_id:
             self.senders.append(WechatAppSender())
+
+        qmsg_key = os.getenv("QMSG_KEY")
+        qmsg_qq = os.getenv("QMSG_QQ")
+        if qmsg_key and qmsg_qq:
+            self.senders.append(QmsgSender())
 
     def send_welcome(self, welcome_message: dict):
         for sender in self.senders:

@@ -61,6 +61,9 @@ def env_check():
     print(f"{'WECHAT_CORP_SECRET:':<15} {'(req)'} {os.getenv('WECHAT_CORP_SECRET', 'None')}")
     print(f"{'WECHAT_AGENT_ID:':<15} {'(req)'} {os.getenv('WECHAT_AGENT_ID', 'None')}")
     print(f"{'WECHAT_USER_ID:':<15} {'(req)'} {os.getenv('WECHAT_USER_ID', 'None')}")
+    print("\n--------Qmsg Bot info:")
+    print(f"{'QMSG_KEY:':<15} {'(req)'} {os.getenv('QMSG_KEY', 'None')}")
+    print(f"{'QMSG_QQ:':<15} {'(req)'} {os.getenv('QMSG_QQ', 'None')}")
     print("\n--------Log info:")
     print(f"{'LOG_LEVEL:':<15} {'(opt)'} {os.getenv('LOG_LEVEL', 'INFO')}")
     print(f"{'LOG_EXPORT:':<15} {'(opt)'} {os.getenv('LOG_EXPORT', 'False')}")
@@ -70,12 +73,14 @@ def env_check():
     try:
         if os.getenv('TMDB_API_TOKEN') is None:
             raise Exception("TMDB_API_TOKEN is required.")
-        if os.getenv('TG_BOT_TOKEN') is None and os.getenv('WECHAT_CORP_ID') is None:
+        if os.getenv('TG_BOT_TOKEN') is None and os.getenv('WECHAT_CORP_ID') is None and os.getenv('QMSG_KEY') is None:
             raise Exception("You must set up at least one notification method, such as a Telegram bot or a WeChat Work application.")
         if os.getenv('TG_BOT_TOKEN') and os.getenv('TG_CHAT_ID') is None:
             raise Exception("TG_CHAT_ID is required.")
         if os.getenv('WECHAT_CORP_ID') and (os.getenv('WECHAT_CORP_SECRET') is None or os.getenv('WECHAT_AGENT_ID') is None):
             raise Exception("Wechat Application config is not completed.")
+        if os.getenv('QMSG_KEY') and (os.getenv('QMSG_QQ') is None):
+            raise Exception("Qmsg Application config is not completed.")
     except Exception as e:
         log.logger.error(e)
         print("\033[1;31m")
@@ -122,4 +127,6 @@ if __name__ == "__main__":
     welcome()
     env_check()
     require_check()
+    sender.Sender = sender.SenderManager()
+    sender.Sender.send_welcome({})
     asyncio.run(my_httpd.my_httpd())
