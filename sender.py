@@ -139,7 +139,7 @@ class QmsgSender(MessageSender):
 
     def send_media_details(self, media: dict):
         caption = (
-                f"@image={media.get('media_backdrop')}@/r"
+                f"@image={media.get('media_poster')}@/r"
                 + "#影视更新 #{server_name}\n"
                 + "\[{type_ch}]\n"
                 + "片名： *{title}* ({year})\n"
