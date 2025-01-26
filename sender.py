@@ -140,9 +140,9 @@ class QmsgSender(MessageSender):
     def send_media_details(self, media: dict):
         imgUrl = media.get('media_poster')
         imgUrl = imgUrl.replace("image.tmdb.org", "tmdb.1313169.xyz")
-        
+
         caption = (
-                f"@image={imgUrl}@/r"
+                f"@image={imgUrl}@\n"
                 + "#影视更新 #{server_name}\n"
                 + "\[{type_ch}]\n"
                 + "片名： *{title}* ({year})\n"
